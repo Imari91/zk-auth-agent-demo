@@ -1,0 +1,46 @@
+#Node
+node_modules/
+*.log
+
+#Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+#zk artifacts pesados
+*.ptau
+*.zkey
+*.r1cs
+*.wtns
+*.wasm
+
+#proofs generados
+proof.json
+public.json
+validInput.json
+witness.wtns
+
+#VSCode
+.vscode/
+
+#IDE
+.vs/
+.vscode/
+.idea/
+
+#OS
+.DS_Store
+Thumbs.db
+
+#Circom/snarkjs artifacts
+*.r1cs
+*.sym
+*.wasm
+*.zkey
+*.wtns
+*_js/
+proof.json
+public.json
+validInput.json
+verification_key.json

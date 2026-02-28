@@ -12,12 +12,14 @@ app = FastAPI()
 # Simple in-memory nonce store
 used_nonces = set()
 
-#simple path
+
+# simple path
 class ProofRequest(BaseModel):
     proof_path: str
     public_path: str
 
-#hash path
+
+# hash path
 class ExecuteRequest(BaseModel):
     operation: str
     resource: str
@@ -25,7 +27,8 @@ class ExecuteRequest(BaseModel):
     proof_path: str
     public_path: str
 
-#def verify_proof(proof_path, public_path):
+
+# def verify_proof(proof_path, public_path):
 #   result = subprocess.run(
 #        [
 #            "snarkjs",
@@ -53,22 +56,18 @@ def verify_proof(proof_path, public_path):
         f"{proof_path}"
     )
 
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        shell=True
-    )
+    result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
 
     print("STDOUT:", result.stdout)
     print("STDERR:", result.stderr)
 
     return "OK!" in result.stdout
 
+
 @app.post("/authorize")
 def authorize(req: ProofRequest):
 
-    #Load public inputs
+    # Load public inputs
     with open(req.public_path) as f:
         public_data = json.load(f)
 
@@ -87,26 +86,26 @@ def authorize(req: ProofRequest):
     start_time = time.time()
     log_siem("Proof received")
 
-    #check de ataque Replay
+    # check de ataque Replay
     if nonce in used_nonces:
         log_siem("Replay detected")
         return {"status": "DENIED", "reason": "Nonce already used"}
 
-    #Ventana de tiempo para evitar ataques replay de 300 segundos
+    # Ventana de tiempo para evitar ataques replay de 300 segundos
     current_time = int(time.time())
     if abs(current_time - timestamp) > 300:
         log_siem("Expired proof")
         return {"status": "DENIED", "reason": "Expired proof"}
 
-    #Verify zk proof
+    # Verify zk proof
     if not verify_proof(req.proof_path, req.public_path):
         log_siem("Invalid proof")
         return {"status": "DENIED", "reason": "Invalid proof"}
 
-    #Mark nonce used
+    # Mark nonce used
     used_nonces.add(nonce)
 
-    #keep log in SIEM with timing
+    # keep log in SIEM with timing
     verification_time = time.time() - start_time
     log_siem(f"Proof verified in {verification_time:.4f}s")
     log_siem("Admission granted: ROTATE_SECRET")
@@ -114,16 +113,17 @@ def authorize(req: ProofRequest):
     # Simulated GitOps action
     return {
         "status": "GRANTED",
-        "action": "ROTATE_SECRET", #happy path
-        #"action": "DEPLOY_PROD_CLUSTER", #statement confusion path
+        "action": "ROTATE_SECRET",  # happy path
+        # "action": "DEPLOY_PROD_CLUSTER", #statement confusion path
         "admission": "APPROVED",
-        "verification_time": verification_time
+        "verification_time": verification_time,
     }
+
 
 @app.post("/api/execute")
 def execute(req: ExecuteRequest):
 
-    #Load public inputs
+    # Load public inputs
     with open(req.public_path) as f:
         public_data = json.load(f)
 
@@ -139,41 +139,43 @@ def execute(req: ExecuteRequest):
     plan_hash_from_proof = int(signals[2])
     commitment = int(signals[3])
 
-    #recalculate hash in gateway and compare with proof to prevent statement confusion
+    # recalculate hash in gateway and compare with proof to prevent statement confusion
     plan_string = f"{req.operation}|{req.resource}|{req.change_id}"
     FIELD_MODULUS = int(
-    "21888242871839275222246405745257275088548364400416034343698204186575808495617"
+        "21888242871839275222246405745257275088548364400416034343698204186575808495617"
     )
     raw_hash = int(hashlib.sha256(plan_string.encode()).hexdigest(), 16)
     plan_hash_gateway = raw_hash % FIELD_MODULUS
 
     if plan_hash_gateway != plan_hash_from_proof:
-        return {"status": "DENIED", "reason": "Plan hash mismatch (statement confusion detected)"}
-
+        return {
+            "status": "DENIED",
+            "reason": "Plan hash mismatch (statement confusion detected)",
+        }
 
     start_time = time.time()
     log_siem("Proof received")
 
-    #check de ataque Replay
+    # check de ataque Replay
     if nonce in used_nonces:
         log_siem("Replay detected")
         return {"status": "DENIED", "reason": "Nonce already used"}
 
-    #Ventana de tiempo para evitar ataques replay de 300 segundos
+    # Ventana de tiempo para evitar ataques replay de 300 segundos
     current_time = int(time.time())
     if abs(current_time - timestamp) > 300:
         log_siem("Expired proof")
         return {"status": "DENIED", "reason": "Expired proof"}
 
-    #Verify zk proof
+    # Verify zk proof
     if not verify_proof(req.proof_path, req.public_path):
         log_siem("Invalid proof")
         return {"status": "DENIED", "reason": "Invalid proof"}
 
-    #Mark nonce used
+    # Mark nonce used
     used_nonces.add(nonce)
 
-    #keep log in SIEM with timing
+    # keep log in SIEM with timing
     verification_time = time.time() - start_time
     log_siem(f"Proof verified in {verification_time:.4f}s")
     log_siem("Admission granted: ROTATE_SECRET")
@@ -181,11 +183,12 @@ def execute(req: ExecuteRequest):
     # Simulated GitOps action
     return {
         "status": "GRANTED",
-        "action": "ROTATE_SECRET", #happy path
-        #"action": "DEPLOY_PROD_CLUSTER", #statement confusion path
+        "action": "ROTATE_SECRET",  # happy path
+        # "action": "DEPLOY_PROD_CLUSTER", #statement confusion path
         "admission": "APPROVED",
-        "verification_time": verification_time
+        "verification_time": verification_time,
     }
+
 
 def log_siem(message):
     print(f"[{datetime.utcnow().isoformat()}] [SIEM] {message}")
