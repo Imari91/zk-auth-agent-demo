@@ -59,11 +59,6 @@ def authorize(req: ProofRequest):
     start_time = time.time()
     log_siem("Proof received")
 
-    #check commitment first
-    EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
-    if commitment != EXPECTED_COMMITMENT:
-            return {"status": "DENIED", "reason": "Commitment mismatch"}
-
     # check de ataque Replay
     if nonce in used_nonces:
         log_siem("Replay detected")
