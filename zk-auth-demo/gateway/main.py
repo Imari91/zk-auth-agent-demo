@@ -1,11 +1,11 @@
+import os
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import datetime
 import subprocess
 import json
 import time
-import hashlib
-import os
 
 app = FastAPI()
 
@@ -58,6 +58,11 @@ def authorize(req: ProofRequest):
 
     start_time = time.time()
     log_siem("Proof received")
+
+    #check commitment first
+    EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
+    if commitment != EXPECTED_COMMITMENT:
+            return {"status": "DENIED", "reason": "Commitment mismatch"}
 
     # check de ataque Replay
     if nonce in used_nonces:

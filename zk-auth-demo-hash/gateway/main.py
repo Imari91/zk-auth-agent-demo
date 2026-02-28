@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import datetime
@@ -5,7 +7,6 @@ import subprocess
 import json
 import time
 import hashlib
-import os
 
 app = FastAPI()
 
@@ -26,25 +27,6 @@ class ExecuteRequest(BaseModel):
     change_id: str
     proof_path: str
     public_path: str
-
-
-# def verify_proof(proof_path, public_path):
-#   result = subprocess.run(
-#        [
-#            "snarkjs",
-#            "groth16",
-#            "verify",
-#           #"../circuit/artifacts/verification_key.json",
-#           "../circuit/artifacts_v2/verification_key.json",
-#            public_path,
-#            proof_path
-#        ],
-#        capture_output=True,
-#        text=True,
-#        shell=True  #importante en Windows
-#    )
-
-#    return "OK!" in result.stdout
 
 
 def verify_proof(proof_path, public_path):
@@ -85,6 +67,11 @@ def authorize(req: ProofRequest):
 
     start_time = time.time()
     log_siem("Proof received")
+
+        #check commitment first
+    EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
+    if commitment != EXPECTED_COMMITMENT:
+            return {"status": "DENIED", "reason": "Commitment mismatch"}
 
     # check de ataque Replay
     if nonce in used_nonces:
@@ -171,6 +158,11 @@ def execute(req: ExecuteRequest):
     if not verify_proof(req.proof_path, req.public_path):
         log_siem("Invalid proof")
         return {"status": "DENIED", "reason": "Invalid proof"}
+
+    #check commitment at the end to prevent DoS with expensive proof verification 
+    EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
+    if commitment != EXPECTED_COMMITMENT:
+            return {"status": "DENIED", "reason": "Commitment mismatch"}
 
     # Mark nonce used
     used_nonces.add(nonce)
