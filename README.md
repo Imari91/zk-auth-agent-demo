@@ -134,28 +134,40 @@ This approximates:
 
 ## 1. Compile Circuit
 
-circom zk_auth_policy_v3.circom --r1cs --wasm --sym -o artifacts_v3 -l node_modules
+```console
+  circom zk_auth_policy_v3.circom --r1cs --wasm --sym -o artifacts_v3 -l node_modules
+```
 
 ## 2. Setup zk keys
 
+Execute each line individually to ensure files are correctly compiled:
+
+```console
 snarkjs groth16 setup artifacts_v3/zk_auth_policy_v3.r1cs pot12_final.ptau artifacts_v3/zk_auth_0000.zkey
 snarkjs zkey contribute artifacts_v3/zk_auth_0000.zkey artifacts_v3/zk_auth_final.zkey
 snarkjs zkey export verificationkey artifacts_v3/zk_auth_final.zkey artifacts_v3/verification_key.json
+```
 
 ## 3.Generate Proof
 
 Inside `agent/`:
 
+```console
 node run_proof.js
+```
 
 ## 4. Run Gateway
 
 Inside `gateway/`:
+```console
 uvicorn main:app --reload
+```
 
 ## 5. Execute Request
 
+```console
 curl.exe -X POST "http://127.0.0.1:8000/api/execute
 " -H "Content-Type: application/json" --data-binary "@request.json"
+```
 
 
