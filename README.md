@@ -29,7 +29,7 @@ These approaches expose metadata and are vulnerable to:
 - Agent impersonation
 - Overprivileged execution
 
-We propose a different model:
+I propose a different model:
 
 > Authorization by mathematical proof.
 
@@ -157,4 +157,5 @@ uvicorn main:app --reload
 
 curl.exe -X POST "http://127.0.0.1:8000/api/execute
 " -H "Content-Type: application/json" --data-binary "@request.json"
+
 
