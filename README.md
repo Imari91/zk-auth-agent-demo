@@ -1,4 +1,4 @@
-# zk-Auth — Zero Knowledge Authorization for Autonomous Agents
+# zk-Auth: Zero Knowledge Authorization for Autonomous Agents
 
 > How do you authorize an AI agent without exposing its data, prompts, weights or internal reasoning?
 
@@ -157,3 +157,4 @@ uvicorn main:app --reload
 
 curl.exe -X POST "http://127.0.0.1:8000/api/execute
 " -H "Content-Type: application/json" --data-binary "@request.json"
+
