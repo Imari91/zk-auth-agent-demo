@@ -1,0 +1,7 @@
+{
+  "operation": "rotate_secret",
+  "resource": "vault/prod/db_password",
+  "change_id": "PR-8421",
+  "proof_path": "../agent/proof.json",
+  "public_path": "../agent/public.json"
+}
