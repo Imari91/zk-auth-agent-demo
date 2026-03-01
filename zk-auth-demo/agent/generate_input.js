@@ -1,18 +1,18 @@
 const fs = require("fs");
 
-const clearance = 4;
+const clearance = 4; //happy path
 const environment = 1;
 const action = 2;
 const secret = 123;
 
-//generar timestamp automatico
+//generate timestamp automatically
 const timestamp = Math.floor(Date.now() / 1000);
 
 
-//un nonce aleatorio pequeno
+//a random small nonce
 const nonce = Math.floor(Math.random() * 100000);
 
-//commitment automatico simple
+//simple automatic commitment
 const commitment =
   clearance + environment + action + secret + nonce + timestamp; //en un caso real, esto seria un hash o algo mas complejo
 
