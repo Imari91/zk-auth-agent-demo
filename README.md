@@ -53,24 +53,23 @@ Policy Gateway
 
 # 🏗 Project Structure
 
-zk-auth-demo-agentid/
-│
-├── circuit/ # Circom circuits
-│ ├── zk_auth_policy_v3.circom
-│ └── artifacts_v3/
-│
-├── agent/ # Agent proof generation
-│ ├── generate_input.js
-│ ├── run_proof.js
-│ └── package.json
-│
-├── gateway/ # Policy Gateway (FastAPI)
-│ ├── main.py
-│ └── requirements.txt
-│
-└── README.md
+zk-auth-demo-agentid/  
+│  
+├── circuit/ # Circom circuits  
+│ ├── zk_auth_policy_v3.circom  
+│ └── artifacts_v3/  
+│  
+├── agent/ # Agent proof generation  
+│ ├── generate_input.js  
+│ ├── run_proof.js  
+│ └── package.json  
+│  
+├── gateway/ # Policy Gateway (FastAPI)  
+│ ├── main.py  
+│ └── requirements.txt  
+│  
+└── README.md  
 
---
 
 # 🚀 Demo Evolution
 
