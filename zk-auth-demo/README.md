@@ -1,4 +1,4 @@
-# zk-auth-demo (v1) — ZK Authorization PoC (baseline)
+# zk-auth-demo (v1): ZK Authorization PoC (baseline)
 
 ## What this version is
 Baseline Proof-of-Concept of **Zero-Knowledge authorization**: an external “agent” generates a ZK proof that it satisfies a simple policy, and a “gateway” verifies the proof before authorizing an action.
@@ -41,7 +41,7 @@ npx snarkjs --version
 
 ## Demo-ready setup (commands)
 
-# 1- gateway (Pyhon)
+### 1- gateway (Pyhon)
 
 From zk-auth-demo/gateway:
 
@@ -56,14 +56,14 @@ pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-# 2- Agent (node)
+### 2- Agent (node)
 
 From zk-auth-demo/agent:
 ```bash
 npm install
 ```
 
-# 3- Circuit build (once, if artifacts not provided)
+### 3- Circuit build (once, if artifacts not provided)
 From zk-auth-demo/circuit (adjust filenames as needed):
 
 ```bash
@@ -71,7 +71,7 @@ From zk-auth-demo/circuit (adjust filenames as needed):
 circom zk_auth_policy.circom --r1cs --wasm --sym -o build
 ```
 
-# 4- Generate proof
+### 4- Generate proof
 From zk-auth-demo/agent:
 
 ```bash
@@ -84,7 +84,7 @@ This should produce something like:
 - proof.json
 - public.json (public signals)
 
-# 5- Call the gateway
+### 5- Call the gateway
 Example (adjust endpoint names if your gateway differs):
 ```bash
 curl -X POST http://127.0.0.1:8000/authorize ^
