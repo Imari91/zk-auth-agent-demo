@@ -134,6 +134,13 @@ def execute(req: ExecuteRequest):
     raw_hash = int(hashlib.sha256(plan_string.encode()).hexdigest(), 16)
     plan_hash_gateway = raw_hash % FIELD_MODULUS
 
+    #quick log
+    print("PLAN STRING GATEWAY:", plan_string)
+    print("PLAN HASH GATEWAY:", plan_hash_gateway)
+    print("PLAN HASH FROM PROOF:", plan_hash_from_proof)
+    print("COMMITMENT FROM PROOF:", commitment)
+    #end log
+
     if plan_hash_gateway != plan_hash_from_proof:
         return {
             "status": "DENIED",
@@ -158,11 +165,6 @@ def execute(req: ExecuteRequest):
     if not verify_proof(req.proof_path, req.public_path):
         log_siem("Invalid proof")
         return {"status": "DENIED", "reason": "Invalid proof"}
-
-    #check commitment at the end to prevent DoS with expensive proof verification 
-    EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
-    if commitment != EXPECTED_COMMITMENT:
-            return {"status": "DENIED", "reason": "Commitment mismatch"}
 
     # Mark nonce used
     used_nonces.add(nonce)
