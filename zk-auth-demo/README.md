@@ -1,5 +1,8 @@
 # zk-auth-demo (v1): ZK Authorization PoC (baseline)
 
+> **TL;DR**  
+> A minimal end-to-end demo of **Zero-Knowledge authorization**: an **agent** proves it satisfies a policy *without revealing private attributes*, and a **gateway** verifies the proof before returning an admission decision.
+
 ## What this version is
 Baseline Proof-of-Concept of **Zero-Knowledge authorization**: an external “agent” generates a ZK proof that it satisfies a simple policy, and a “gateway” verifies the proof before authorizing an action.
 
@@ -23,6 +26,15 @@ This version focuses on the **core mechanics**:
 - `gateway/`
   - FastAPI verification service.
   - **Simulates** an API gateway / policy enforcement point (PEP).
+
+## Protocol (public vs private)
+Typical signal layout in this baseline circuit:
+
+- **Private** (agent-only): attributes required to satisfy policy P  
+- **Public** (sent to gateway):  
+  - `commitment` — public handle (baseline may log it; v2 enforces it)  
+  - `nonce` — anti-replay token  
+  - `timestamp` — proof freshness 
 
 
 ## Prerequisites
@@ -98,3 +110,4 @@ curl -X POST http://127.0.0.1:8000/authorize ^
 
 This is a PoC. The nonce store is typically in-memory and resets on restart.
 The policy is intentionally simple to keep the focus on ZK flow + gateway enforcement.
+This version is designed for clarity, not production hardening (no distributed replay cache, no mTLS, no key rotation).
