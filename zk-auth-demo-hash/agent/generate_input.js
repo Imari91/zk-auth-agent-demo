@@ -5,30 +5,27 @@ const environment = 1;
 const action = 2;
 const secret = 123;
 
-//generar timestamp automatico
+//generate automatic timestamp
 //const timestamp = Math.floor(Date.now() / 1000);
 const timestamp = BigInt(Math.floor(Date.now() / 1000));
 
-//un nonce aleatorio pequeno
+//a random small nonce
 //const nonce = Math.floor(Math.random() * 100000);
 const nonce = BigInt(Math.floor(Math.random() * 100000));
 
 
-//---Parte solo necesitada en el commitment + HASH---//
-//----------------------------------------------------
+//---This is being introduced by this new version of the demo plan + HASH---//
 const crypto = require("crypto");
 
 const operation = "rotate_secret";
 const resource = "vault/prod/db_password";
 const change_id = "PR-8421";
 
-//Hash real
+//Real hash
 const plan_string = operation + "|" + resource + "|" + change_id;
 const hash = crypto.createHash("sha256").update(plan_string).digest("hex");
 
-//convertimos hash hex a numero grande (decimal)
-//const plan_hash = BigInt("0x" + hash).toString(); //esto me da un overflow del SHA256
-
+//we could exceed the field size of the circuit, so we need to reduce it
 const FIELD_MODULUS = BigInt(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"
 );
@@ -36,16 +33,10 @@ const FIELD_MODULUS = BigInt(
 const raw_hash = BigInt("0x" + hash);
 const plan_hash = (raw_hash % FIELD_MODULUS).toString();
 
-//---Fin parte solo necesaria en el commitment + HASH---//
+//---End additional module plan + HASH---//
 
 
-//commitment automatico simple
-/*const commitment =
-  clearance + environment + action + secret + nonce + timestamp; //en un caso real, esto seria un hash o algo mas complejo
-
-*/
-
-//commitment con hash del plan
+//commitment including the hashed plan
 const commitment =
   BigInt(clearance)
   + BigInt(environment)
@@ -55,18 +46,8 @@ const commitment =
   + BigInt(timestamp)
   + BigInt(plan_hash);
 
-/* demo sencilla
-const input = {
-  clearance,
-  environment,
-  action,
-  secret,
-  nonce,
-  timestamp,
-  commitment,
-}; */
 
-//Demo con hash plan incluido
+//Demo with plan hash included in the commitment, but not as a public input to the circuit, just to show how to include it in the proof without making it public. In a real case, the plan hash would be a public input and the circuit would check that it corresponds to the operation, resource and change_id of the policy.
 const input = {
   clearance: clearance.toString(),
   environment: environment.toString(),

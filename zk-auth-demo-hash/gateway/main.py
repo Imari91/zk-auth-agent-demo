@@ -1,26 +1,30 @@
+# -----------------------------------------------------------------------------
+# AI Gateway for ZK Authentication - Proof of Concept
+# -----------------------------------------------------------------------------
+
 import os
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 import subprocess
 import json
 import time
 import hashlib
 
-app = FastAPI()
+app = FastAPI(title="ZK Auth Gateway (PoC)", version="0.2.0")
 
-# Simple in-memory nonce store
+#Simple in-memory nonce store
 used_nonces = set()
 
 
-# simple path
+#simple path
 class ProofRequest(BaseModel):
-    proof_path: str
-    public_path: str
+    proof_path: str = Field(..., description="../circuit/artifacts/proof.json")
+    public_path: str = Field(..., description="../circuit/artifacts/public.json")
 
 
-# hash path
+#hash path
 class ExecuteRequest(BaseModel):
     operation: str
     resource: str
@@ -28,7 +32,7 @@ class ExecuteRequest(BaseModel):
     proof_path: str
     public_path: str
 
-
+#Proof verification using snarkjs CLI
 def verify_proof(proof_path, public_path):
 
     cmd = (
@@ -39,21 +43,21 @@ def verify_proof(proof_path, public_path):
     )
 
     result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
-
+    #capture possible errors in verification
     print("STDOUT:", result.stdout)
     print("STDERR:", result.stderr)
 
     return "OK!" in result.stdout
 
-
+#Basic authorisation endpoint that verifies the proof and checks for replay attacks using nonces and timestamps
 @app.post("/authorize")
 def authorize(req: ProofRequest):
 
-    # Load public inputs
+    #Load public inputs
     with open(req.public_path) as f:
         public_data = json.load(f)
 
-    # Compatible con ambas estructuras de snarkjs
+    #Compatible with both snarkjs instances
     if isinstance(public_data, dict) and "publicSignals" in public_data:
         signals = public_data["publicSignals"]
     elif isinstance(public_data, list):
@@ -68,36 +72,36 @@ def authorize(req: ProofRequest):
     start_time = time.time()
     log_siem("Proof received")
 
-        #check commitment first
+    #check commitment first
     EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
     if commitment != EXPECTED_COMMITMENT:
             return {"status": "DENIED", "reason": "Commitment mismatch"}
 
-    # check de ataque Replay
+    #check de ataque Replay
     if nonce in used_nonces:
         log_siem("Replay detected")
         return {"status": "DENIED", "reason": "Nonce already used"}
 
-    # Ventana de tiempo para evitar ataques replay de 300 segundos
+    #Timeframe to prevent replay attacked within 300 seconds
     current_time = int(time.time())
     if abs(current_time - timestamp) > 300:
         log_siem("Expired proof")
         return {"status": "DENIED", "reason": "Expired proof"}
 
-    # Verify zk proof
+    #Verify zk proof
     if not verify_proof(req.proof_path, req.public_path):
         log_siem("Invalid proof")
         return {"status": "DENIED", "reason": "Invalid proof"}
 
-    # Mark nonce used
+    #Mark nonce used
     used_nonces.add(nonce)
 
-    # keep log in SIEM with timing
+    #keep log in SIEM with timing
     verification_time = time.time() - start_time
     log_siem(f"Proof verified in {verification_time:.4f}s")
     log_siem("Admission granted: ROTATE_SECRET")
 
-    # Simulated GitOps action
+    #Simulated GitOps action
     return {
         "status": "GRANTED",
         "action": "ROTATE_SECRET",  # happy path
@@ -107,10 +111,11 @@ def authorize(req: ProofRequest):
     }
 
 
+#New endpoint to execute an operation with the proof, including statement confusion prevention with plan hashing
 @app.post("/api/execute")
 def execute(req: ExecuteRequest):
 
-    # Load public inputs
+    #Load public inputs
     with open(req.public_path) as f:
         public_data = json.load(f)
 
@@ -126,7 +131,7 @@ def execute(req: ExecuteRequest):
     plan_hash_from_proof = int(signals[2])
     commitment = int(signals[3])
 
-    # recalculate hash in gateway and compare with proof to prevent statement confusion
+    #recalculate hash in gateway and compare with proof to prevent statement confusion
     plan_string = f"{req.operation}|{req.resource}|{req.change_id}"
     FIELD_MODULUS = int(
         "21888242871839275222246405745257275088548364400416034343698204186575808495617"
@@ -150,34 +155,34 @@ def execute(req: ExecuteRequest):
     start_time = time.time()
     log_siem("Proof received")
 
-    # check de ataque Replay
+    #check replay attack scenario
     if nonce in used_nonces:
         log_siem("Replay detected")
         return {"status": "DENIED", "reason": "Nonce already used"}
 
-    # Ventana de tiempo para evitar ataques replay de 300 segundos
+    #Timeframe to prevent replay attacks within 300 seconds
     current_time = int(time.time())
     if abs(current_time - timestamp) > 300:
         log_siem("Expired proof")
         return {"status": "DENIED", "reason": "Expired proof"}
 
-    # Verify zk proof
+    #Verify zk proof
     if not verify_proof(req.proof_path, req.public_path):
         log_siem("Invalid proof")
         return {"status": "DENIED", "reason": "Invalid proof"}
 
-    # Mark nonce used
+    #Mark nonce used
     used_nonces.add(nonce)
 
-    # keep log in SIEM with timing
+    #keep log in SIEM with timing
     verification_time = time.time() - start_time
     log_siem(f"Proof verified in {verification_time:.4f}s")
     log_siem("Admission granted: ROTATE_SECRET")
 
-    # Simulated GitOps action
+    #Simulated GitOps action
     return {
         "status": "GRANTED",
-        "action": "ROTATE_SECRET",  # happy path
+        "action": "ROTATE_SECRET",  #happy path
         # "action": "DEPLOY_PROD_CLUSTER", #statement confusion path
         "admission": "APPROVED",
         "verification_time": verification_time,

@@ -106,7 +106,7 @@ curl -X POST http://127.0.0.1:8000/authorize ^
 
   If you prefer, paste proof.json + public.json into a single payload file and curl -d @payload.json.
 
-#Notes
+# Notes
 
 This is a PoC. The nonce store is typically in-memory and resets on restart.
 The policy is intentionally simple to keep the focus on ZK flow + gateway enforcement.
