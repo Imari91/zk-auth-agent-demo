@@ -1,4 +1,6 @@
-# zk-Auth: Zero Knowledge Authorization for Autonomous Agents
+# zk-Auth: Privacy-Preserving Identity Claims for Autonomous Agent Workflows
+
+A reference implementation of Zero-Knowledge for verifiable agentic authentication.
 
 > How do you authorize an AI agent without exposing its data, prompts, weights or internal reasoning?
 
@@ -10,6 +12,8 @@ The agent proves:
 - It is a specific cryptographic identity
 - It is executing an exact approved plan
 - Without revealing sensitive inputs
+
+⚠️ Warning: This is a research prototype. The circuits have not been audited. Do not use in production environments involving real financial assets.
 
 
 # 🔐Problem Statement
@@ -51,6 +55,27 @@ Policy Gateway
 - Validates timestamp (time window)
 - Executes action if approved
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Agent (Prover)
+    participant C as ZK Circuit (Policy Statement)
+    participant P as Prover Runtime (snarkjs/wasm)
+    participant V as Verifier (Policy Gateway)
+
+    Note over A,P: 1. Preparación Local
+    A->>P: Provide witness (private inputs)
+    A->>V: Send public inputs (claims) + request action
+    
+    Note over P,C: 2. Ejecución Criptográfica
+    P->>C: Execute circuit on witness + public inputs
+    C-->>P: Witness satisfies constraints
+    
+    Note over P,V: 3. Validación Externa
+    P->>V: Proof + public signals
+    V->>V: Verify proof against verification key
+```
+
 # 🏗 Project Structure
 
 zk-auth-demo-agentid/  
@@ -69,6 +94,43 @@ zk-auth-demo-agentid/
 │ └── requirements.txt  
 │  
 └── README.md  
+
+# 📚 Research & References
+
+![Status](https://img.shields.io/badge/status-research--prototype-orange?style=flat-square)
+![Security](https://img.shields.io/badge/security-unaudited-red?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+
+## Core Concepts
+
+* **Groth16:** [On the Size of Pairing-based Non-interactive Arguments](https://eprint.iacr.org/2016/260.pdf) - Jens Groth.
+* **Semaphore:** [Privacy-preserving identity and signaling](https://semaphore.appliedzkp.org/) - Ethereum Foundation.
+
+## Related Work in Agentic ZK
+* *Zero-Knowledge Audit for Internet of Agents: Privacy-Preserving Communication Verification with Model Context Protocol (2025)* - [[Link](https://arxiv.org/abs/2512.14737)]
+* *Design of an Improved Model for Authentication Using Blockchain and Zero-Knowledge Proofs (2025)* - [[Link](https://ieeexplore.ieee.org/abstract/document/11156282)]
+* *Zero-Knowledge Proofs and OAuth 2.0 for Anonymity and Security in Distributed Systems  (2023)* - [[Link](https://www.e3s-conferences.org/articles/e3sconf/pdf/2023/106/e3sconf_icegc2023_00085.pdf)]
+* *DIAP: A Decentralized Agent Identity Protocol with Zero-Knowledge Proofs and a Hybrid P2P Stack (2025)* - [[Link](https://arxiv.org/abs/2511.11619)]
+* *Zero-Knowledge Proof (ZKP) Authentication Protocol (Github)* - [[Link](https://github.com/srinathln7/zkp-authentication?tab=readme-ov-file)]
+* *Soulprint: Decentralized KYC identity protocol for AI agents (Github)* - [[Link](https://github.com/manuelariasfz/soulprint)]
+
+## Citations
+If you use this work in your research, please cite:
+```bibtex
+@misc{zkauthagent2026,
+  author = {Mar Llambí},
+  title = {ZK-Auth-Agent: Verifiable Credentials for Autonomous Agents},
+  year = {2026},
+  publisher = {GitHub},
+  journal = {GitHub Repository},
+  howpublished = {\url{[https://github.com/Imari91/zk-auth-agent-demo](https://github.com/Imari91/zk-auth-agent-demo)}}
+}
+```
+
+## 📢 Presentations & Talks
+
+[![Rooted Con 2026 ZK-Authentication for agents](./docs/assets/presentation-thumbnail.png)](./ROOTEDCON2026_ZKAgents.pptx)
+*Presented at RootedCON Madrid (2026). Click the image to download the full slide deck.*
 
 
 # 🚀 Demo Evolution
@@ -121,6 +183,11 @@ This approximates:
 
 
 # 🔬 Cryptographic Components
+
+![Circuit](https://img.shields.io/badge/logic-Circom-blue?style=flat-square)
+![Prover](https://img.shields.io/badge/prover-SnarkJS-blueviolet?style=flat-square)
+![Language](https://img.shields.io/badge/language-Python-blue?style=flat-square)
+![Language](https://img.shields.io/badge/language-JS-blue?style=flat-square)
 
 - Circom 2.x
 - Groth16 zk-SNARK
