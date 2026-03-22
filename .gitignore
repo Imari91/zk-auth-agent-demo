@@ -33,6 +33,9 @@ witness.wtns
 .DS_Store
 Thumbs.db
 
+#workspace
+*.code-workspace
+
 #Circom/snarkjs artifacts
 *.r1cs
 *.sym
@@ -44,3 +47,7 @@ proof.json
 public.json
 validInput.json
 verification_key.json
+
+#lock packages
+package-lock.json
+package.json

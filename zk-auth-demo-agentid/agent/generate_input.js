@@ -20,7 +20,7 @@ async function main() {
   const timestamp = BigInt(Math.floor(Date.now() / 1000));
 
   // === Agent identity ===
-  const agent_secret = BigInt(987654321);
+  const agent_secret = BigInt(12345); 
   const agent_id = poseidon([agent_secret]);
   const agent_id_str = poseidon.F.toString(agent_id);
 

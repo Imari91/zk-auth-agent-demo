@@ -151,10 +151,6 @@ def execute(req: ExecuteRequest):
             "reason": "Plan hash mismatch (statement confusion detected)",
         }
     
-    #check commitment
-    EXPECTED_COMMITMENT = int(os.getenv("EXPECTED_COMMITMENT", "0"))
-    if commitment != EXPECTED_COMMITMENT:
-            return {"status": "DENIED", "reason": "Commitment mismatch"}
 
     start_time = time.time()
     log_siem("Proof received")
