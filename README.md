@@ -55,11 +55,13 @@ Policy Gateway
 - Validates timestamp (time window)
 - Executes action if approved
 
+```mermaid
 sequenceDiagram
     Agent->>Circuit: Input Private Credentials
     Circuit->>Prover: Generate ZKP
     Prover->>Verifier: Proof + Public Signals
     Verifier-->>Agent: Authorized
+```
 
 # 🏗 Project Structure
 
