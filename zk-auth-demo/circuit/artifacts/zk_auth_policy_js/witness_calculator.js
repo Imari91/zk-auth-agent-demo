@@ -1,3 +1,15 @@
+/**
+ * 
+ * witness_calculator.js
+ * 
+ * This module is a thin runtime wrapper around the Circom-generated WebAssembly (WASM)
+ * that computes the witness for a circuit.
+ *
+ * In a typical ZK pipeline (Circom + snarkjs), the witness is the full assignment of
+ * all circuit signals (inputs, intermediates, outputs) that satisfies the constraints.
+ */
+
+//compiles and instantiates the WASM module
 module.exports = async function builder(code, options) {
 
     options = options || {};
@@ -8,6 +20,7 @@ module.exports = async function builder(code, options) {
     }  catch (err) {
 	console.log(err);
 	console.log("\nTry to run circom --c in order to generate c++ code instead\n");
+    //If WASM compilation fails, the circuit build artifacts are likely wrong/corrupted.
 	throw new Error(err);
     }
 
@@ -16,6 +29,7 @@ module.exports = async function builder(code, options) {
     let errStr = "";
     let msgStr = "";
     
+    //Instantiate the WASM module with a set of imports under the "runtime" namespace
     const instance = await WebAssembly.instantiate(wasmModule, {
         runtime: {
             exceptionHandler : function(code) {
@@ -39,20 +53,20 @@ module.exports = async function builder(code, options) {
             },
 	    printErrorMessage : function() {
 		errStr += getMessage() + "\n";
-                // console.error(getMessage());
+                //console.error(getMessage());
 	    },
 	    writeBufferMessage : function() {
 			const msg = getMessage();
-			// Any calls to `log()` will always end with a `\n`, so that's when we print and reset
+			//Any calls to log() will always end with a `\n`, so that's when we print and reset
 			if (msg === "\n") {
 				console.log(msgStr);
 				msgStr = "";
 			} else {
-				// If we've buffered other content, put a space in between the items
+				//If we've buffered other content, put a space in between the items
 				if (msgStr !== "") {
 					msgStr += " "
 				}
-				// Then append the message to the message we are creating
+				//Then append the message to the message we are creating
 				msgStr += msg;
 			}
 	    },
@@ -63,8 +77,10 @@ module.exports = async function builder(code, options) {
         }
     });
 
+    //Can be kept disabled for faster demos
     const sanityCheck =
         options
+//we could have a global sanity check or just activate it for a specific call
 //        options &&
 //        (
 //            options.sanityCheck ||
@@ -88,6 +104,10 @@ module.exports = async function builder(code, options) {
         return message;
     }
 	
+    /**
+   * Reads the shared RW memory buffer and prints it as a field element
+   * The field element is tored in 32-bit limbs (n32 words)
+   */
     function printSharedRWMemory () {
 	const shared_rw_memory_size = instance.exports.getFieldNumLen32();
 	const arr = new Uint32Array(shared_rw_memory_size);
@@ -95,16 +115,22 @@ module.exports = async function builder(code, options) {
 	    arr[shared_rw_memory_size-1-j] = instance.exports.readSharedRWMemory(j);
 	}
 
-	// If we've buffered other content, put a space in between the items
+	//If we've buffered other content, put a space in between the items
 	if (msgStr !== "") {
 		msgStr += " "
 	}
-	// Then append the value to the message we are creating
+	//Then append the value to the message we are creating
 	msgStr += (fromArray32(arr).toString());
 	}
 
 };
 
+/**
+ * Wraps the Circom-generated WASM instance and provides:
+ * calculateWitness(): array of BigInt witness values
+ * calculateBinWitness(): raw binary witness (Uint8Array)
+ * calculateWTNSBin(): binary witness in WTNS format (snarkjs compatible)
+ */
 class WitnessCalculator {
     constructor(instance, sanityCheck) {
         this.instance = instance;
@@ -157,7 +183,7 @@ class WitnessCalculator {
                     this.instance.exports.setInputSignal(hMSB, hLSB,i);
 		    input_counter++;
 		} catch (err) {
-		    // console.log(`After adding signal ${i} of ${k}`)
+		    //console.log(`After adding signal ${i} of ${k}`)
                     throw new Error(err);
 		}
             }
@@ -168,6 +194,7 @@ class WitnessCalculator {
 	}
     }
 
+    //internal function that calculates the witness and returns it as an array of BigInts
     async calculateWitness(input, sanityCheck) {
 
         const w = [];
@@ -186,7 +213,7 @@ class WitnessCalculator {
         return w;
     }
     
-
+    //internal function that calculates the witness and returns it as a raw binary (Uint8Array)
     async calculateBinWitness(input, sanityCheck) {
 
         const buff32 = new Uint32Array(this.witnessSize*this.n32);
@@ -204,7 +231,7 @@ class WitnessCalculator {
 	return buff;
     }
     
-
+    //internal function that calculates the witness and returns it in WTNS format (snarkjs compatible)
     async calculateWTNSBin(input, sanityCheck) {
 
         const buff32 = new Uint32Array(this.witnessSize*this.n32+this.n32+11);
@@ -253,7 +280,7 @@ class WitnessCalculator {
 	buff32[pos] = 2;
 	pos++;
 
-	// section 2 length
+	//section 2 length
 	const idSection2length = n8*this.witnessSize;
 	const idSection2lengthHex = idSection2length.toString(16);
         buff32[pos] = parseInt(idSection2lengthHex.slice(0,8), 16);
@@ -273,7 +300,7 @@ class WitnessCalculator {
 
 }
 
-
+//As Circom field elements are commonly stored as n32 limbs, we convert BigInts to and from this format with these helper functions
 function toArray32(rem,size) {
     const res = []; //new Uint32Array(size); //has no unshift
     const radix = BigInt(0x100000000);

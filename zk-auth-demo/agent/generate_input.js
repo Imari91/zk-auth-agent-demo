@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const clearance = 4; //happy path
+const clearance = 4; //happy path, must be higher than the clearance required by the policy (3)
 const environment = 1;
 const action = 2;
 const secret = 123;
@@ -14,7 +14,7 @@ const nonce = Math.floor(Math.random() * 100000);
 
 //simple automatic commitment
 const commitment =
-  clearance + environment + action + secret + nonce + timestamp; //en un caso real, esto seria un hash o algo mas complejo
+  clearance + environment + action + secret + nonce + timestamp; //in a real case that would be a hash of all the values
 
 const input = {
   clearance,
