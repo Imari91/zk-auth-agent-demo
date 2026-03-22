@@ -57,10 +57,23 @@ Policy Gateway
 
 ```mermaid
 sequenceDiagram
-    Agent->>Circuit: Input Private Credentials
-    Circuit->>Prover: Generate ZKP
-    Prover->>Verifier: Proof + Public Signals
-    Verifier-->>Agent: Authorized
+    autonumber
+    participant A as Agent (Prover)
+    participant C as ZK Circuit (Policy Statement)
+    participant P as Prover Runtime (snarkjs/wasm)
+    participant V as Verifier (Policy Gateway)
+
+    Note over A,P: 1. Preparación Local
+    A->>P: Provide witness (private inputs)
+    A->>V: Send public inputs (claims) + request action
+    
+    Note over P,C: 2. Ejecución Criptográfica
+    P->>C: Execute circuit on witness + public inputs
+    C-->>P: Witness satisfies constraints
+    
+    Note over P,V: 3. Validación Externa
+    P->>V: Proof + public signals
+    V->>V: Verify proof against verification key
 ```
 
 # 🏗 Project Structure
@@ -113,6 +126,11 @@ If you use this work in your research, please cite:
   howpublished = {\url{[https://github.com/Imari91/zk-auth-agent-demo](https://github.com/Imari91/zk-auth-agent-demo)}}
 }
 ```
+
+## 📢 Presentations & Talks
+
+[![Rooted Con 2026 ZK-Authentication for agents](./docs/assets/presentation-thumbnail.png)](./ROOTEDCON2026_ZKAgents.pptx)
+*Presented at RootedCON Madrid (2026). Click the image to download the full slide deck.*
 
 
 # 🚀 Demo Evolution
