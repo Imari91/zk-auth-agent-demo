@@ -81,6 +81,11 @@ zk-auth-demo-agentid/
 └── README.md  
 
 # 📚 Research & References
+
+![Status](https://img.shields.io/badge/status-research--prototype-orange?style=flat-square)
+![Security](https://img.shields.io/badge/security-unaudited-red?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+
 ## Core Concepts
 
 * **Groth16:** [On the Size of Pairing-based Non-interactive Arguments](https://eprint.iacr.org/2016/260.pdf) - Jens Groth.
@@ -96,8 +101,8 @@ zk-auth-demo-agentid/
 
 ## Citations
 If you use this work in your research, please cite:
-\```bibtex
-@misc{zkauthagent2024,
+```bibtex
+@misc{zkauthagent2026,
   author = {Mar Llambí},
   title = {ZK-Auth-Agent: Verifiable Credentials for Autonomous Agents},
   year = {2026},
@@ -105,7 +110,7 @@ If you use this work in your research, please cite:
   journal = {GitHub Repository},
   howpublished = {\url{[https://github.com/Imari91/zk-auth-agent-demo](https://github.com/Imari91/zk-auth-agent-demo)}}
 }
-\```
+```
 
 
 # 🚀 Demo Evolution
@@ -158,6 +163,11 @@ This approximates:
 
 
 # 🔬 Cryptographic Components
+
+![Circuit](https://img.shields.io/badge/logic-Circom-blue?style=flat-square)
+![Prover](https://img.shields.io/badge/prover-SnarkJS-blueviolet?style=flat-square)
+![Language](https://img.shields.io/badge/language-Python-blue?style=flat-square)
+![Language](https://img.shields.io/badge/language-JS-blue?style=flat-square)
 
 - Circom 2.x
 - Groth16 zk-SNARK
