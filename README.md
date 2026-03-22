@@ -1,4 +1,6 @@
-# zk-Auth: Zero Knowledge Authorization for Autonomous Agents
+# zk-Auth: Privacy-Preserving Identity Claims for Autonomous Agent Workflows
+
+A reference implementation of Zero-Knowledge for verifiable agentic authentication.
 
 > How do you authorize an AI agent without exposing its data, prompts, weights or internal reasoning?
 
@@ -10,6 +12,8 @@ The agent proves:
 - It is a specific cryptographic identity
 - It is executing an exact approved plan
 - Without revealing sensitive inputs
+
+⚠️ Warning: This is a research prototype. The circuits have not been audited. Do not use in production environments involving real financial assets.
 
 
 # 🔐Problem Statement
@@ -51,6 +55,12 @@ Policy Gateway
 - Validates timestamp (time window)
 - Executes action if approved
 
+sequenceDiagram
+    Agent->>Circuit: Input Private Credentials
+    Circuit->>Prover: Generate ZKP
+    Prover->>Verifier: Proof + Public Signals
+    Verifier-->>Agent: Authorized
+
 # 🏗 Project Structure
 
 zk-auth-demo-agentid/  
@@ -69,6 +79,33 @@ zk-auth-demo-agentid/
 │ └── requirements.txt  
 │  
 └── README.md  
+
+# 📚 Research & References
+## Core Concepts
+
+* **Groth16:** [On the Size of Pairing-based Non-interactive Arguments](https://eprint.iacr.org/2016/260.pdf) - Jens Groth.
+* **Semaphore:** [Privacy-preserving identity and signaling](https://semaphore.appliedzkp.org/) - Ethereum Foundation.
+
+## Related Work in Agentic ZK
+* *Zero-Knowledge Audit for Internet of Agents: Privacy-Preserving Communication Verification with Model Context Protocol (2025)* - [[Link](https://arxiv.org/abs/2512.14737)]
+* *Design of an Improved Model for Authentication Using Blockchain and Zero-Knowledge Proofs (2025)* - [[Link](https://ieeexplore.ieee.org/abstract/document/11156282)]
+* *Zero-Knowledge Proofs and OAuth 2.0 for Anonymity and Security in Distributed Systems  (2023)* - [[Link](https://www.e3s-conferences.org/articles/e3sconf/pdf/2023/106/e3sconf_icegc2023_00085.pdf)]
+* *DIAP: A Decentralized Agent Identity Protocol with Zero-Knowledge Proofs and a Hybrid P2P Stack (2025)* - [[Link](https://arxiv.org/abs/2511.11619)]
+* *Zero-Knowledge Proof (ZKP) Authentication Protocol (Github)* - [[Link](https://github.com/srinathln7/zkp-authentication?tab=readme-ov-file)]
+* *Soulprint: Decentralized KYC identity protocol for AI agents (Github)* - [[Link](https://github.com/manuelariasfz/soulprint)]
+
+## Citations
+If you use this work in your research, please cite:
+\```bibtex
+@misc{zkauthagent2024,
+  author = {Mar Llambí},
+  title = {ZK-Auth-Agent: Verifiable Credentials for Autonomous Agents},
+  year = {2026},
+  publisher = {GitHub},
+  journal = {GitHub Repository},
+  howpublished = {\url{[https://github.com/Imari91/zk-auth-agent-demo](https://github.com/Imari91/zk-auth-agent-demo)}}
+}
+\```
 
 
 # 🚀 Demo Evolution
