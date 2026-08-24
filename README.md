@@ -107,6 +107,8 @@ zk-auth-demo-agentid/
 * **Semaphore:** [Privacy-preserving identity and signaling](https://semaphore.appliedzkp.org/) - Ethereum Foundation.
 
 ## Related Work in Agentic ZK
+
+* *Cryptographically verifiable authorization for autonomous AI agents: A falsifiable hypothesis and proof-of-concept (2026)* - [[Link](https://arxiv.org/abs/2607.21325)]
 * *Zero-Knowledge Audit for Internet of Agents: Privacy-Preserving Communication Verification with Model Context Protocol (2025)* - [[Link](https://arxiv.org/abs/2512.14737)]
 * *Design of an Improved Model for Authentication Using Blockchain and Zero-Knowledge Proofs (2025)* - [[Link](https://ieeexplore.ieee.org/abstract/document/11156282)]
 * *Zero-Knowledge Proofs and OAuth 2.0 for Anonymity and Security in Distributed Systems  (2023)* - [[Link](https://www.e3s-conferences.org/articles/e3sconf/pdf/2023/106/e3sconf_icegc2023_00085.pdf)]
