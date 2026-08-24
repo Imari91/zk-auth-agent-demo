@@ -207,17 +207,18 @@ This approximates:
 Performance figures and constraint-count comparisons reported in the accompanying paper are reproducible directly from this repository.
 
 **Performance benchmarking** (witness generation time, proof generation time, verification time, proof size, over N repeated runs):
-
+```console
 cd agent/
 node benchmark.js
-
+```
 
 Writes `benchmark_results.json` with per-run timings, summary statistics (mean ± standard deviation), and circuit metadata.
 
 **Constraint-count comparison** (randomized vs. deterministic identity commitment):
-
+```console
 cd circuit/
 .\compare_constraints.ps1
+```
 
 Compiles both `zk_auth_policy_v3.circom` (current, randomized) and `zk_auth_policy_v3single.circom` (legacy, deterministic) into isolated output folders and prints the resulting constraint/wire/input delta, without modifying `artifacts_v3/` or the existing trusted setup.
 
