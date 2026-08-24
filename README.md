@@ -81,12 +81,16 @@ sequenceDiagram
 zk-auth-demo-agentid/  
 │  
 ├── circuit/ # Circom circuits  
-│ ├── zk_auth_policy_v3.circom  
+│ ├── zk_auth_policy_v3.circom
+│ ├── zk_auth_policy_v3single.circom  #legacy single-input Poseidon variant, 
+│ ├── compare_constraints.ps1         #compiles both variants and prints the constraint delta  
 │ └── artifacts_v3/  
 │  
 ├── agent/ # Agent proof generation  
 │ ├── generate_input.js  
-│ ├── run_proof.js  
+│ ├── run_proof.js
+│ ├── benchmark.js                    #reproduces the performance figures reported in the paper
+│ ├── benchmark_results.json          #archived output of the last benchmark run  
 │ └── package.json  
 │  
 ├── gateway/ # Policy Gateway (FastAPI)  
@@ -167,7 +171,7 @@ Agent proves:
 
 - Policy compliance
 - Exact plan binding
-- Identity via Poseidon(agent_secret)
+- Identity via a randomized two-input Poseidon commitment, Poseidon(agent_secret, rho), providing hiding under a hash-based assumption rather than a bare deterministic hash
 
 Gateway enforces:
 
@@ -197,6 +201,25 @@ This approximates:
 - SHA256 (plan binding)
 - Poseidon hash (agent identity)
 - snarkjs
+
+# 📊 Reproducing Reported Metrics
+
+Performance figures and constraint-count comparisons reported in the accompanying paper are reproducible directly from this repository.
+
+**Performance benchmarking** (witness generation time, proof generation time, verification time, proof size, over N repeated runs):
+
+cd agent/
+node benchmark.js
+
+
+Writes `benchmark_results.json` with per-run timings, summary statistics (mean ± standard deviation), and circuit metadata.
+
+**Constraint-count comparison** (randomized vs. deterministic identity commitment):
+
+cd circuit/
+.\compare_constraints.ps1
+
+Compiles both `zk_auth_policy_v3.circom` (current, randomized) and `zk_auth_policy_v3single.circom` (legacy, deterministic) into isolated output folders and prints the resulting constraint/wire/input delta, without modifying `artifacts_v3/` or the existing trusted setup.
 
 # 🧪 Running the Demo
 
