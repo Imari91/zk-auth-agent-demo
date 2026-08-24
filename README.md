@@ -81,12 +81,16 @@ sequenceDiagram
 zk-auth-demo-agentid/  
 │  
 ├── circuit/ # Circom circuits  
-│ ├── zk_auth_policy_v3.circom  
+│ ├── zk_auth_policy_v3.circom
+│ ├── zk_auth_policy_v3single.circom  
+│ ├── compare_constraints.ps1           
 │ └── artifacts_v3/  
 │  
 ├── agent/ # Agent proof generation  
 │ ├── generate_input.js  
-│ ├── run_proof.js  
+│ ├── run_proof.js
+│ ├── benchmark.js                    
+│ ├── benchmark_results.json           
 │ └── package.json  
 │  
 ├── gateway/ # Policy Gateway (FastAPI)  
@@ -107,6 +111,8 @@ zk-auth-demo-agentid/
 * **Semaphore:** [Privacy-preserving identity and signaling](https://semaphore.appliedzkp.org/) - Ethereum Foundation.
 
 ## Related Work in Agentic ZK
+
+* *Cryptographically verifiable authorization for autonomous AI agents: A falsifiable hypothesis and proof-of-concept (2026)* - [[Link](https://arxiv.org/abs/2607.21325)]
 * *Zero-Knowledge Audit for Internet of Agents: Privacy-Preserving Communication Verification with Model Context Protocol (2025)* - [[Link](https://arxiv.org/abs/2512.14737)]
 * *Design of an Improved Model for Authentication Using Blockchain and Zero-Knowledge Proofs (2025)* - [[Link](https://ieeexplore.ieee.org/abstract/document/11156282)]
 * *Zero-Knowledge Proofs and OAuth 2.0 for Anonymity and Security in Distributed Systems  (2023)* - [[Link](https://www.e3s-conferences.org/articles/e3sconf/pdf/2023/106/e3sconf_icegc2023_00085.pdf)]
@@ -165,7 +171,7 @@ Agent proves:
 
 - Policy compliance
 - Exact plan binding
-- Identity via Poseidon(agent_secret)
+- Identity via a randomized two-input Poseidon commitment, Poseidon(agent_secret, rho), providing hiding under a hash-based assumption rather than a bare deterministic hash
 
 Gateway enforces:
 
@@ -195,6 +201,26 @@ This approximates:
 - SHA256 (plan binding)
 - Poseidon hash (agent identity)
 - snarkjs
+
+# 📊 Reproducing Reported Metrics
+
+Performance figures and constraint-count comparisons reported in the accompanying paper are reproducible directly from this repository.
+
+**Performance benchmarking** (witness generation time, proof generation time, verification time, proof size, over N repeated runs):
+```console
+cd agent/
+node benchmark.js
+```
+
+Writes `benchmark_results.json` with per-run timings, summary statistics (mean ± standard deviation), and circuit metadata.
+
+**Constraint-count comparison** (randomized vs. deterministic identity commitment):
+```console
+cd circuit/
+.\compare_constraints.ps1
+```
+
+Compiles both `zk_auth_policy_v3.circom` (current, randomized) and `zk_auth_policy_v3single.circom` (legacy, deterministic) into isolated output folders and prints the resulting constraint/wire/input delta, without modifying `artifacts_v3/` or the existing trusted setup.
 
 # 🧪 Running the Demo
 

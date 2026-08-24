@@ -14,7 +14,6 @@ template ZkAuthPolicyV3() {
     signal input timestamp;
     signal input plan_hash;
     signal input agent_secret;
-    signal input rho;              //NEW: randomness of the identity commitment(ρ_i)
 
     // Public
     signal output agent_id;
@@ -24,19 +23,15 @@ template ZkAuthPolicyV3() {
     signal output commitment;
 
     // === Identity binding ===
-    component hashAgent = Poseidon(2);
+    component hashAgent = Poseidon(1);
     hashAgent.inputs[0] <== agent_secret;
-    hashAgent.inputs[1] <== rho; 
 
     agent_id <== hashAgent.out;
 
     // === Policy ===
-    //8 or 16 both might work
     component checkClearance = GreaterEqThan(8);
-    //clearance >=3 cannot be used as circom does not create valid constrain
     checkClearance.in[0] <== clearance;
     checkClearance.in[1] <== 3;
-    checkClearance.out === 1;     //NEW: Missing restriction
     environment - 1 === 0;
     action - 2 === 0;
 

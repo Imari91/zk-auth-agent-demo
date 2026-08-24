@@ -28,7 +28,7 @@ Typical additions vs v1/v2:
     - `clearance` or policy threshold (depending on your circuit)
   - **Simulates** a policy with identity binding.
 - `agent/`
-  - Computes `agent_id` from `agent_secret`, builds proof.
+  - Computes `agent_id` from `agent_secret` and a randomized commitment factor `rho`, builds proof.
   - **Simulates** an autonomous agent proving identity + compliance.
 - `gateway/`
   - Verifies proof + checks nonce/time + checks allowlist(agent_id).
@@ -79,14 +79,22 @@ npm install
 ```
 
 ### 3- Circuit build (once, if artifacts not provided)
-From zk-auth-demo-agentid/circuit (adjust filenames as needed):
+From `zk-auth-demo-agentid/circuit` (requires `circomlib` installed via `npm install circomlib` in this folder first):
 
 ```bash
 # Compile circuit
-circom zk_auth_policy.circom --r1cs --wasm --sym -o build
+circom zk_auth_policy_v3.circom --r1cs --wasm --sym -o artifacts_v3 -l node_modules
+```
+### 4- Trusted setup (once, if artifacts not provided)
+Requires a `.ptau` file (generate with `snarkjs powersoftau` if not already present):
+
+```bash
+snarkjs groth16 setup artifacts_v3/zk_auth_policy_v3.r1cs pot12_final.ptau artifacts_v3/zk_auth_0000.zkey
+snarkjs zkey contribute artifacts_v3/zk_auth_0000.zkey artifacts_v3/zk_auth_final.zkey
+snarkjs zkey export verificationkey artifacts_v3/zk_auth_final.zkey artifacts_v3/verification_key.json
 ```
 
-### 4- Generate proof
+### 5- Generate proof
 From zk-auth-demo-agentid/agent:
 
 ```bash
@@ -99,8 +107,9 @@ This should produce something like:
 - proof.json
 - public.json (public signals)
 
-### 5- Call the gateway
-Example (adjust endpoint names if your gateway differs):
+### 6- Call the gateway
+The `/api/execute` endpoint expects file paths, not inlined proof content:
+
 ```bash
 curl -X POST http://127.0.0.1:8000/api/execute ^
   -H "Content-Type: application/json" ^
