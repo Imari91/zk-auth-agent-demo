@@ -21,7 +21,16 @@ async function main() {
 
   //Define Agent identity (in a real case, the agent would have a secret and the agent_id would be generated from that secret, for example using a hash or a Poseidon function. Here we are just simulating that with a random secret and the Poseidon hash to generate the agent_id)
   const agent_secret = BigInt(12345); 
-  const agent_id = poseidon([agent_secret]); //use Poseidon hash to generate agent_id from agent_secret
+
+  //Commitment randomness (rho): generated ONCE at agent registration time and reused
+  //across all proofs by this agent, analogous to agent_secret above. Regenerating it
+  //per-proof would change agent_id on every run and break the gateway's identity
+  //whitelist (ALLOWED_AGENTS), which expects a stable identifier per registered agent.
+  const rho = BigInt(
+    "0x" + crypto.createHash("sha256").update("agent-001-registration-randomness").digest("hex")
+  ) % FIELD_MODULUS;
+
+  const agent_id = poseidon([agent_secret, rho]); //use Poseidon hash to generate agent_id from agent_secret and rho
   const agent_id_str = poseidon.F.toString(agent_id);
 
   console.log("Agent ID:", agent_id_str);
@@ -45,7 +54,8 @@ async function main() {
     nonce +
     timestamp +
     plan_hash +
-    agent_secret;
+    agent_secret+
+    rho;
 
   const input = {
     clearance: clearance.toString(),
@@ -55,7 +65,8 @@ async function main() {
     nonce: nonce.toString(),
     timestamp: timestamp.toString(),
     plan_hash: plan_hash.toString(),
-    agent_secret: agent_secret.toString()
+    agent_secret: agent_secret.toString(),
+    rho: rho.toString()                 //NEW
   };
 
   fs.writeFileSync("validInput.json", JSON.stringify(input, null, 2));
