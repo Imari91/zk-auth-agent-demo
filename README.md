@@ -82,15 +82,15 @@ zk-auth-demo-agentid/
 │  
 ├── circuit/ # Circom circuits  
 │ ├── zk_auth_policy_v3.circom
-│ ├── zk_auth_policy_v3single.circom  #legacy single-input Poseidon variant, 
-│ ├── compare_constraints.ps1         #compiles both variants and prints the constraint delta  
+│ ├── zk_auth_policy_v3single.circom  
+│ ├── compare_constraints.ps1           
 │ └── artifacts_v3/  
 │  
 ├── agent/ # Agent proof generation  
 │ ├── generate_input.js  
 │ ├── run_proof.js
-│ ├── benchmark.js                    #reproduces the performance figures reported in the paper
-│ ├── benchmark_results.json          #archived output of the last benchmark run  
+│ ├── benchmark.js                    
+│ ├── benchmark_results.json           
 │ └── package.json  
 │  
 ├── gateway/ # Policy Gateway (FastAPI)  
